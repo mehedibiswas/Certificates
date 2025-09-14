@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My Certificates — Showcase</title>
+  <meta name="description" content="A beautiful, shareable certificates gallery for GitHub Pages." />
+  <style>
+    /* --- Reset & basics --- */
+    :root{
+      --bg:#0f1724;
+      --card-bg:rgba(255,255,255,0.03);
+      --glass:rgba(255,255,255,0.04);
+      --glass-2:rgba(255,255,255,0.02);
+      --accent1:#7c3aed; /* purple */
+      --accent2:#06b6d4; /* teal */
+      --text:#e6eef8;
+      --muted:#9fb0c8;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      background: radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.12), transparent),
+                  radial-gradient(1000px 500px at 90% 90%, rgba(6,182,212,0.09), transparent),
+                  var(--bg);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:40px 28px;
+    }
+
+    .wrap{max-width:1100px;margin:0 auto}
+
+    header{
+      display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:28px;
+    }
+    .brand{display:flex;gap:14px;align-items:center}
+    .logo{
+      width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent1),var(--accent2));
+      display:grid;place-items:center;color:white;font-weight:700;font-size:18px;box-shadow:0 6px 20px rgba(2,6,23,0.6);
+    }
+    h1{margin:0;font-size:20px}
+    p.lead{margin:0;color:var(--muted)}
+
+    /* search + filters */
+    .controls{display:flex;gap:12px;align-items:center}
+    .search{background:var(--glass);border:1px solid rgba(255,255,255,0.03);padding:8px 12px;border-radius:10px;display:flex;gap:8px;align-items:center}
+    .search input{background:transparent;border:0;outline:none;color:var(--text);min-width:180px}
+    .btn{background:linear-gradient(90deg,var(--accent1),var(--accent2));border:none;padding:10px 14px;color:white;border-radius:10px;cursor:pointer;font-weight:600}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06)}
+
+    /* grid */
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px}
+
+    /* shining card */
+    .card{
+      position:relative;
+      border-radius:14px;
+      padding:14px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      overflow:hidden;
+      cursor:default;
+      transition:transform .36s cubic-bezier(.2,.9,.2,1), box-shadow .36s;
+      box-shadow:0 6px 18px rgba(2,6,23,0.6);
+      border:1px solid rgba(255,255,255,0.02);
+      min-height:160px;
+      display:flex;flex-direction:column;
+    }
+    .card:hover{transform:translateY(-8px);box-shadow:0 20px 40px rgba(2,6,23,0.6)}
+
+    /* animated border using pseudo-element */
+    .card::before{
+      content:"";
+      position:absolute;inset:-2px;border-radius:16px;
+      padding:2px; /* space for border effect */
+      background:conic-gradient(from 0deg,var(--accent1),#ff7ab6,var(--accent2),#ffd36b,var(--accent1));
+      -webkit-mask:linear-gradient(#000,#000) content-box, linear-gradient(#000,#000);
+      mask:linear-gradient(#000,#000) content-box, linear-gradient(#000,#000);
+      -webkit-mask-composite: xor;mask-composite: exclude;
+      animation:spin 6s linear infinite;
+      opacity:0.9;
+      pointer-events:none;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* inner content overlay to create an inner card */
+    .card .inner{
+      position:relative;z-index:2;border-radius:10px;padding:10px;flex:1;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(180deg,var(--card-bg),transparent);
+    }
+
+    .thumb{
+      border-radius:8px;overflow:hidden;height:120px;background:var(--glass-2);display:block;position:relative;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.02);
+    }
+    .thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .36s}
+    .card:hover .thumb img{transform:scale(1.04)}
+
+    .meta{display:flex;align-items:center;gap:10px;margin-top:10px}
+    .meta .title{font-weight:700}
+    .meta .sub{font-size:13px;color:var(--muted)}
+
+    .actions{display:flex;gap:8px;align-items:center}
+    .actions button{padding:8px 10px;border-radius:8px;border:none;background:rgba(255,255,255,0.03);color:var(--text);cursor:pointer}
+    .actions button:hover{transform:translateY(-2px)}
+
+    /* modal */
+    .modal{position:fixed;inset:0;display:grid;place-items:center;background:rgba(0,0,0,0.6);z-index:60;padding:28px;opacity:0;pointer-events:none;transition:opacity .18s}
+    .modal.open{opacity:1;pointer-events:all}
+    .modal .panel{max-width:1100px;width:100%;background:transparent}
+    .modal img{width:100%;height:auto;border-radius:12px;display:block}
+
+    footer{margin-top:40px;color:var(--muted);font-size:13px;text-align:center}
+
+    /* responsive tweaks */
+    @media (max-width:640px){body{padding:18px} .logo{width:46px;height:46px}}
+
+    /* little shimmer on titles */
+    .title.shimmer{background:linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.18), rgba(255,255,255,0.06));-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 2.2s linear infinite}
+    @keyframes shine{0%{background-position:-200px 0}100%{background-position:200px 0}}
+
+    /* empty state */
+    .empty{padding:36px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);text-align:center;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">ME</div>
+        <div>
+          <h1>My Certificates</h1>
+          <p class="lead">Showcase your achievements — share this page with your community.</p>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="search" role="search" aria-label="Search certificates">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"></path><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.6"></circle></svg>
+          <input id="q" placeholder="Search by title, issuer, year..." />
+        </div>
+        <button class="btn ghost" id="reset">Reset</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="gallery" class="grid" aria-live="polite">
+        <!-- cards will be injected here -->
+      </section>
+
+      <div id="empty" class="empty" style="display:none;margin-top:20px;">
+        No certificates found. Add your certificate images to the <code>certs/</code> folder and update the list in the script.
+      </div>
+    </main>
+
+    <footer>
+      Tip: To publish on GitHub Pages, put this file as <kbd>index.html</kbd> in your repo root and push. Add your images in a <kbd>certs/</kbd> folder alongside this file.
+    </footer>
+  </div>
+
+  <!-- modal preview -->
+  <div id="modal" class="modal" role="dialog" aria-hidden="true">
+    <div class="panel">
+      <button id="closeModal" style="margin-bottom:12px;padding:8px 12px;border-radius:9px;border:none;cursor:pointer">Close</button>
+      <img id="modalImg" src="" alt="Certificate preview">
+    </div>
+  </div>
+
+  <script>
+    /* -----------------------------
+       HOW TO USE
+       1) Save this file as index.html in the root of your GitHub repository.
+       2) Create a folder named `certs/` at the repository root and upload your certificate image files there.
+       3) Edit the `certificates` array below to list your images, titles, issuers and year.
+       4) Commit & push. In repo settings -> Pages, enable GitHub Pages (branch: main or gh-pages). Your site will be at https://<your-username>.github.io/<repo>/
+    ------------------------------*/
+
+    // Replace these sample items with your own. Each item filename should match a file you uploaded to certs/ folder.
+    const certificates = [
+      {file: 'Flughunt-2023.png', title: 'Flaghunt CTF Participant 2023', issuer: 'Flughunt', year: '2023'},
+      {file: 'ByteCapsule.jpg', title: 'EHP', issuer: 'Byte Capsule', year: '2024'},
+      {file: 'nmap.jpg', title: 'Nmap', issuer: 'Udemy', year: '2024'},
+      {file: 'social-engineering.jpg', title: 'Social Engineering', issuer: 'Udemy', year: '2024'}
+     
+    ];
+
+    // Utility: create card HTML
+    function makeCard(cert, idx){
+      const card = document.createElement('article');
+      card.className = 'card';
+      card.setAttribute('data-title', cert.title + ' ' + cert.issuer + ' ' + cert.year);
+
+      card.innerHTML = `
+        <div class="inner">
+          <div class="thumb" role="img" aria-label="${escapeHtml(cert.title)} certificate">
+            <img loading="lazy" src="certs/${encodeURI(cert.file)}" alt="${escapeHtml(cert.title)} by ${escapeHtml(cert.issuer)}">
+          </div>
+
+          <div>
+            <div class="meta">
+              <div>
+                <div class="title shimmer">${escapeHtml(cert.title)}</div>
+                <div class="sub">${escapeHtml(cert.issuer)} • ${escapeHtml(cert.year)}</div>
+              </div>
+            </div>
+            <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center">
+              <div class="actions">
+                <button class="view" data-idx="${idx}">Preview</button>
+                <a class="btn" href="certs/${encodeURI(cert.file)}" target="_blank" rel="noopener">Open</a>
+              </div>
+              <div style="font-size:12px;color:var(--muted)">ID: #${(idx+1).toString().padStart(2,'0')}</div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      return card;
+    }
+
+    // escape to avoid injection in this static template
+    function escapeHtml(s){return String(s).replace(/[&<>"']/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;','\'':'&#39;'}[c] })}
+
+    // render gallery
+    const gallery = document.getElementById('gallery');
+    const empty = document.getElementById('empty');
+
+    function render(list){
+      gallery.innerHTML='';
+      if(!list || list.length===0){ empty.style.display='block'; return }
+      empty.style.display='none';
+      list.forEach((c,i)=>gallery.appendChild(makeCard(c,i)));
+      // wire preview buttons
+      document.querySelectorAll('.view').forEach(b=>b.addEventListener('click', (e)=>openPreview(list[+e.currentTarget.dataset.idx])));
+    }
+
+    function openPreview(cert){
+      const modal = document.getElementById('modal');
+      const img = document.getElementById('modalImg');
+      img.src = 'certs/' + encodeURI(cert.file);
+      img.alt = cert.title + ' — ' + cert.issuer;
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden','false');
+    }
+    document.getElementById('closeModal').addEventListener('click', ()=>{document.getElementById('modal').classList.remove('open');document.getElementById('modal').setAttribute('aria-hidden','true')});
+    document.getElementById('modal').addEventListener('click',(e)=>{ if(e.target.id==='modal') {document.getElementById('modal').classList.remove('open');document.getElementById('modal').setAttribute('aria-hidden','true')} });
+
+    // search
+    document.getElementById('q').addEventListener('input', (e)=>{
+      const q = e.target.value.trim().toLowerCase();
+      if(!q) return render(certificates);
+      const filtered = certificates.filter(c => (c.title+' '+c.issuer+' '+c.year).toLowerCase().includes(q));
+      render(filtered);
+    });
+
+    // reset
+    document.getElementById('reset').addEventListener('click', ()=>{render(certificates)});
+
+    // initial render
+    render(certificates);
+  </script>
+</body>
+</html>
